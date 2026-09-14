@@ -3,157 +3,356 @@ mock/data.py
 Pakistani E-Commerce Market Intelligence Mock Dataset
 Contains realistic events, Hijri-Gregorian synchronization, winning products,
 wholesale sourcing hubs, courier benchmarks, city COD tiers, and store inventory.
+
+Last Updated: September 2026 — Events are CURRENT & FUTURE only.
+Past events (Ramadan 2026, Eid-ul-Fitr 2026, Eid-ul-Adha 2026, 14th Aug 2026)
+have been analyzed and used to forecast the upcoming demand calendar.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+
+# Helper: auto-compute days remaining from today
+def _days_left(date_str: str) -> int:
+    try:
+        target = datetime.strptime(date_str, "%Y-%m-%d").date()
+        delta = (target - date.today()).days
+        return max(0, delta)
+    except Exception:
+        return 0
 
 # -----------------------------------------------------------------------------
-# 1. PAKISTAN E-COMMERCE EVENTS (Gregorian & Hijri Synchronized)
+# 1. PAKISTAN E-COMMERCE EVENTS — CURRENT & UPCOMING ONLY
+#    (Based on today: September 14, 2026)
+#    Analysis of past peaks: Ramadan +240%, Eid-ul-Fitr +320%, Eid-ul-Adha +180%,
+#    14th August +160% — these inform the forecasts below.
 # -----------------------------------------------------------------------------
-EVENTS_DATA = [
+_EVENTS_RAW = [
+    # ── ✅ ACTIVE NOW ──────────────────────────────────────────────────
     {
-        "id": "ramadan-2026",
-        "name": "Ramadan Mubarak & Pre-Eid Preparation",
-        "name_ur": "رمضان المبارک اور عید کی تیاری",
-        "hijri_date": "1 Ramadan 1448 AH",
-        "start_date": "2026-02-18",
-        "end_date": "2026-03-20",
-        "demand_spike_pct": 240,
-        "peak_window": "First 15 days of Ramadan",
-        "sourcing_cutoff": "2026-01-25",
-        "courier_cutoff": "2026-03-14",
-        "status": "Active Sourcing & Campaign Setup",
-        "days_remaining": 22,
-        "description": "Massive surge in kitchen gadgets, modest wear (Abayas/Hijabs), dates packaging, prayer mats, and early Eid unstitched fabrics.",
-        "top_categories": ["Modest Wear & Abayas", "Kitchen Appliances (Choppers/Air Fryers)", "Islamic Lifestyle & Decor", "Pre-Eid Unstitched Fabrics"],
-        "recommended_lead_time_days": 40,
-        "historical_gmv_index": 92,
-        "courier_notes": "Heavy congestion expected from 15th Ramadan onward. Move high-ticket items to air cargo or book early.",
+        "id": "pre-winter-launch-2026",
+        "name": "Pre-Winter Collection Launch 🧥",
+        "name_ur": "سردیوں کی نئی کلیکشن لانچ",
+        "hijri_date": "Rabi al-Awwal 1448 AH",
+        "start_date": "2026-09-01",
+        "end_date": "2026-09-30",
+        "demand_spike_pct": 110,
+        "peak_window": "Mid-September to End of September 2026",
+        "sourcing_cutoff": "2026-08-20",
+        "courier_cutoff": "2026-09-28",
+        "status": "Active Sourcing",
+        "description": (
+            "📊 Past Analysis → Sep is historically a 1.1x GMV month. Buyers begin exploring "
+            "winter knitwear, shawls, and light jackets. Smart sellers use Sep to build inventory "
+            "and launch awareness content before the Oct-Nov mega-peak.\n\n"
+            "🔮 Current Opportunity: List winter basics (hoodies, light shawls, warm socks bundles). "
+            "TikTok UGC content with 'first winter haul' hooks perform 2x better this month."
+        ),
+        "top_categories": [
+            "Light Knitwear & Hoodies",
+            "Ladies Winter Shawls (Pashmina style)",
+            "Kids Warm Fleece Sets",
+            "Men's Sweatshirts & Joggers"
+        ],
+        "recommended_lead_time_days": 20,
+        "historical_gmv_index": 62,
+        "courier_notes": "Normal courier operations. Good window to negotiate SLA rates before festive backlogs.",
         "seller_checklist": [
-            "Finalize unstitched fabric dyeing & packaging at Faisalabad/Shah Alam hubs.",
-            "Test Meta & TikTok ad creative angles before CPMs inflate by 45%.",
-            "Set up automated WhatsApp confirmation for COD orders above PKR 3,500.",
-            "Stock up on branded flyers and double-bubble courier pouches."
+            "List winter knitwear & hoodies NOW — buyers begin searching from mid-Sep.",
+            "Create size-chart videos for men's sweatshirts (high return risk from wrong sizes).",
+            "Set up retargeting audiences on Meta — cheaper CPMs before Oct inflation.",
+            "Negotiate courier volume deals before Blessed Friday congestion begins."
         ]
     },
+    # ── 📅 UPCOMING — HIGH PRIORITY ────────────────────────────────────
     {
-        "id": "eid-ul-fitr-2026",
-        "name": "Eid-ul-Fitr Grand Fashion Surge",
-        "name_ur": "عید الفطر گرینڈ فیشن سیزن",
-        "hijri_date": "1 Shawwal 1448 AH",
-        "start_date": "2026-03-20",
-        "end_date": "2026-03-23",
-        "demand_spike_pct": 320,
-        "peak_window": "10-25 Ramadan (Peak dispatch frenzy)",
-        "sourcing_cutoff": "2026-02-15",
-        "courier_cutoff": "2026-03-15",
-        "status": "High Urgency Alert (Cutoff in 25 days)",
-        "days_remaining": 35,
-        "description": "Highest annual e-commerce volume for festive apparel, traditional footwear (Khussas), kidswear, Eid jewelry, and ittar perfumes.",
-        "top_categories": ["Women's Festive Pret & Lawn", "Men's Kurta & Shalwar Kameez", "Festive Footwear (Khussas)", "Attar & Perfumes", "Eid Gifts & Bangles"],
-        "recommended_lead_time_days": 45,
-        "historical_gmv_index": 100,
-        "courier_notes": "Leopards, TCS, and Trax cut off deliveries 4-5 days prior to Eid day. Orders after cutoff will be refused/returned.",
-        "seller_checklist": [
-            "Stop advertising unstitched materials 12 days before Eid; switch strictly to Ready-to-Wear (Pret).",
-            "Mark all product pages with guaranteed delivery dates.",
-            "Staff extra customer service reps for tracking inquiries and address corrections."
-        ]
-    },
-    {
-        "id": "eid-ul-adha-2026",
-        "name": "Eid-ul-Adha (Bari Eid)",
-        "name_ur": "عید الاضحیٰ (بڑی عید)",
-        "hijri_date": "10 Dhul-Hijjah 1448 AH",
-        "start_date": "2026-05-27",
-        "end_date": "2026-05-30",
-        "demand_spike_pct": 180,
-        "peak_window": "15 days prior to Eid-ul-Adha",
-        "sourcing_cutoff": "2026-04-25",
-        "courier_cutoff": "2026-05-22",
+        "id": "shaadi-season-oct-2026",
+        "name": "Shaadi Season Kick-off — October Peak 💍",
+        "name_ur": "شادی سیزن اکتوبر 2026",
+        "hijri_date": "Rabi al-Thani 1448 AH",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-31",
+        "demand_spike_pct": 185,
+        "peak_window": "1st October to 31st October 2026",
+        "sourcing_cutoff": "2026-09-10",
+        "courier_cutoff": "2026-10-28",
         "status": "Upcoming Planning",
-        "days_remaining": 88,
-        "description": "High demand for BBQ grills, skewers, meat cutting tools, butcher knives (Wazirabad steel), deep freezers accessories, and semi-formal menswear.",
-        "top_categories": ["BBQ Sets & Kitchen Utensils", "Wazirabad Cutlery & Knives", "Men's Casual Kurta", "Meat Preservation & Sealers"],
-        "recommended_lead_time_days": 35,
-        "historical_gmv_index": 78,
-        "courier_notes": "Expect courier delivery delays due to animal market logistics in major cities like Karachi, Lahore, and Rawalpindi.",
+        "description": (
+            "📊 Past Analysis → Wedding season has been a 1.5x GMV multiplier historically. "
+            "October marks the start of the 5-month shaadi peak (Oct–Feb). Past Eid-ul-Fitr data "
+            "showed +320% on festive apparel — wedding season follows with sustained 185% spikes.\n\n"
+            "🔮 Forecast: Formal chiffon suits, bridal jewelry, mehndi accessories, and groom sherwanis "
+            "will dominate. AOV (Average Order Value) is highest in this season — PKR 4,000–12,000 range."
+        ),
+        "top_categories": [
+            "Bridal & Mehndi Formal Wear",
+            "Gold-Plated Jewelry Sets",
+            "Groom Sherwani & Accessories",
+            "Mehndi Decor & Dholki Accessories",
+            "Makeup Vanity Cases & Beauty Kits"
+        ],
+        "recommended_lead_time_days": 25,
+        "historical_gmv_index": 79,
+        "courier_notes": "High-value COD parcels. Use TCS or PostEx for insured delivery above PKR 5,000.",
         "seller_checklist": [
-            "Source steel knives directly from Wazirabad wholesale suppliers.",
-            "Bundle BBQ skewers with portable grills for higher AOV.",
-            "Highlight anti-rust and heavy-duty warranty in ad copy."
+            "Source embroidered formal wear from Faisalabad / Gujranwala textile markets NOW.",
+            "Enforce PKR 500–1,000 advance on custom bridal orders to reduce RTO risk.",
+            "Run 'wedding haul' content on TikTok & Instagram Reels for max organic reach.",
+            "Bundle mehndi accessories (cones + holders + decor) for 35% higher AOV."
         ]
     },
     {
-        "id": "azadi-sale-2026",
-        "name": "14th August Azadi Mega Sale",
-        "name_ur": "14 اگست یوم آزادی میگا سیل",
-        "hijri_date": "Safar 1449 AH",
-        "start_date": "2026-08-01",
-        "end_date": "2026-08-14",
-        "demand_spike_pct": 160,
-        "peak_window": "1st to 12th August",
-        "sourcing_cutoff": "2026-07-15",
-        "courier_cutoff": "2026-08-10",
-        "status": "Upcoming Planning",
-        "days_remaining": 155,
-        "description": "Patriotic merchandise, green/white apparel for kids and adults, national badges, car flag accessories, and summer clearance flash sales.",
-        "top_categories": ["Green & White Festive Wear", "Kids Azadi Outfits & Badges", "Automobile & Bike Accessories", "Summer Clearance Fashion"],
-        "recommended_lead_time_days": 30,
-        "historical_gmv_index": 72,
-        "courier_notes": "National holiday logistics freeze on 13-14th August.",
-        "seller_checklist": [
-            "Run bundle clearance to eliminate remaining summer lawn stock.",
-            "Create fast-shipping flash sales on Daraz, Shopify, and TikTok Shop."
-        ]
-    },
-    {
-        "id": "blessed-friday-2026",
-        "name": "Blessed Friday / 11.11 Mega Shopping Festival",
-        "name_ur": "بلیسڈ فرائیڈے اور 11.11 شاپنگ فیسٹیول",
-        "hijri_date": "Jumada al-Thani 1449 AH",
-        "start_date": "2026-11-10",
-        "end_date": "2026-11-30",
-        "demand_spike_pct": 380,
-        "peak_window": "11th November to 27th November",
+        "id": "pre-1111-sourcing-2026",
+        "name": "11.11 Pre-Sourcing & Inventory Build Window ⚡",
+        "name_ur": "11.11 سورسنگ اور اسٹاک بلڈ ونڈو",
+        "hijri_date": "Jumada al-Awwal 1448 AH",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-10",
+        "demand_spike_pct": 75,
+        "peak_window": "1st October to 10th October 2026 (SOURCING DEADLINE)",
         "sourcing_cutoff": "2026-10-10",
-        "courier_cutoff": "2026-11-28",
-        "status": "Long-Term Strategic",
-        "days_remaining": 245,
-        "description": "The biggest discounted shopping event of the year in Pakistan. Skyrocketing electronics, winter apparel, smart home gadgets, beauty & skincare.",
-        "top_categories": ["Smart Electronics & Audio", "Winter Outerwear & Hoodies", "Skincare & Beauty Cosmetics", "Home & Kitchen Appliances"],
+        "courier_cutoff": "N/A",
+        "status": "High Urgency",
+        "description": (
+            "📊 Past Analysis → Blessed Friday 2025 saw +380% demand surge — the highest in Pakistan's "
+            "e-commerce history. Sellers who sourced 45+ days in advance captured 3x more orders. "
+            "Those who missed the cutoff ran out of stock by Day 2 of the festival.\n\n"
+            "🔮 ACTION REQUIRED: October 1–10 is your LAST WINDOW to wholesale source for 11.11 Mega Sale. "
+            "Electronics, skincare, winter wear, and home appliances must be in your warehouse by Oct 15."
+        ),
+        "top_categories": [
+            "Smart Electronics (Earbuds, Power Banks, Smartwatches)",
+            "Winter Outerwear (Puffer Jackets, Hoodies, Fleece)",
+            "Skincare & Beauty Combos",
+            "Home & Kitchen Appliances"
+        ],
+        "recommended_lead_time_days": 45,
+        "historical_gmv_index": 95,
+        "courier_notes": "Pre-negotiate bulk SLA with Trax / PostEx before October 15 to lock discounted rates.",
+        "seller_checklist": [
+            "⚠️ DEADLINE: Complete wholesale sourcing by October 10, 2026.",
+            "Order 40-60% more stock than your normal monthly volume for 11.11.",
+            "Prepare product listings, creatives, and TikTok ads in October for Nov launch.",
+            "Set up Daraz flash deal submissions & Shopify discount codes in advance."
+        ]
+    },
+    {
+        "id": "blessed-friday-1111-2026",
+        "name": "Blessed Friday & 11.11 Mega Shopping Festival 🛍️",
+        "name_ur": "بلیسڈ فرائیڈے اور 11.11 شاپنگ فیسٹیول",
+        "hijri_date": "Jumada al-Thani 1448 AH",
+        "start_date": "2026-11-10",
+        "end_date": "2026-11-28",
+        "demand_spike_pct": 380,
+        "peak_window": "11th November to 28th November 2026",
+        "sourcing_cutoff": "2026-10-10",
+        "courier_cutoff": "2026-11-26",
+        "status": "Upcoming Planning",
+        "description": (
+            "📊 Past Analysis → Pakistan's biggest e-commerce event. In 2025 Blessed Friday: "
+            "+380% sales volume, Daraz reported 3M+ orders in 24 hours. Electronics & winter apparel "
+            "were the #1 and #2 categories. Sellers with pre-packed stock shipped 6x faster.\n\n"
+            "🔮 2026 Forecast: Expect even higher volumes with TikTok Shop now mainstream. "
+            "Budget-friendly bundles (PKR 999–1,999) will outperform luxury items. "
+            "COD confirmation via WhatsApp bot is critical to reduce fake orders."
+        ),
+        "top_categories": [
+            "Smart Electronics & TWS Earbuds",
+            "Winter Outerwear & Puffer Jackets",
+            "Skincare & Whitening Serums",
+            "Home Appliances (Air Fryers, Heaters)",
+            "Kids Winter Clothing Sets"
+        ],
         "recommended_lead_time_days": 60,
         "historical_gmv_index": 100,
-        "courier_notes": "Severe COD courier backlogs across Trax, TCS, and Leopards. High return risk if delivery takes over 6 days.",
+        "courier_notes": "SEVERE backlogs expected. Trax/TCS/PostEx will be at 400% capacity. Pre-book slots by Nov 1.",
         "seller_checklist": [
-            "Negotiate volume-based SLA rates with at least 2 courier companies.",
-            "Pre-pack fast-moving stock to dispatch within 6 hours of order receipt."
+            "All stock must be in warehouse by October 20 — no exceptions.",
+            "Pre-pack your top 10 SKUs in courier bags to dispatch within 2 hours of order.",
+            "Set up WhatsApp Business auto-reply for order tracking links.",
+            "Negotiate minimum 300 daily booking slots with your courier partner.",
+            "Cap daily orders to what you can dispatch same-day — overselling kills ratings."
         ]
     },
     {
-        "id": "wedding-season-2026",
-        "name": "Winter Wedding & Festive Gala (Shaadi Season)",
-        "name_ur": "موسم سرما شادی سیزن",
+        "id": "winter-wedding-peak-2026",
+        "name": "Winter Wedding Grand Peak — Dec/Jan 💒",
+        "name_ur": "سردیوں کی شادیاں — دسمبر جنوری",
         "hijri_date": "Rajab - Sha'ban 1448 AH",
-        "start_date": "2026-11-15",
-        "end_date": "2027-02-15",
+        "start_date": "2026-12-01",
+        "end_date": "2027-01-31",
         "demand_spike_pct": 290,
-        "peak_window": "December to January continuous peak",
-        "sourcing_cutoff": "2026-10-25",
+        "peak_window": "December 2026 to January 2027",
+        "sourcing_cutoff": "2026-11-10",
         "courier_cutoff": "Rolling daily",
-        "status": "Seasonal Constant",
-        "days_remaining": 250,
-        "description": "High average order values (AOV). Heavy formal wedding wear, velvet shawls, gold-plated jewelry sets, bridal makeup vanity cases, creator ring lights.",
-        "top_categories": ["Chiffon & Velvet Formal Wear", "Bridal Jewelry Sets", "Groom Footwear & Sherwani Accessories", "Content Creator Ring Lights"],
+        "status": "Long-Term Strategic",
+        "description": (
+            "📊 Past Analysis → December-January is the pinnacle of Pakistani shaadi season. "
+            "Historical GMV index: 88. Chiffon, velvet, and gold-plated jewelry dominate. "
+            "AOV consistently at PKR 5,000–15,000 — highest of the entire year.\n\n"
+            "🔮 2026-27 Forecast: Post-Blessed Friday, buyers shift focus to wedding essentials. "
+            "Bridal sets, mehndi jewelry, formal shoes, and home decor for guest rooms will peak. "
+            "International Pakistani diaspora orders from UK/UAE/US increase 40% in Dec."
+        ),
+        "top_categories": [
+            "Velvet & Chiffon Formal Suits",
+            "Bridal Gold-Plated Jewelry",
+            "Groom Sherwani & Nagra Footwear",
+            "Mehndi & Baraat Decor Sets",
+            "Luxury Perfumes & Ittars"
+        ],
         "recommended_lead_time_days": 45,
         "historical_gmv_index": 88,
-        "courier_notes": "High-value COD parcel safety is paramount. Prefer couriers with insured cash collection.",
+        "courier_notes": "International orders via TCS WorldWide or DHL. Domestic high-value via TCS Express only.",
         "seller_checklist": [
-            "Enforce partial advance payment (PKR 500-1000) on customized bridal orders.",
-            "Inspect velvet and embroidered borders for defects before packaging."
+            "Source velvet & formal fabrics from Faisalabad by November 10.",
+            "Enable international shipping on Shopify for diaspora buyers (UK, UAE, USA).",
+            "Offer express 1-2 day delivery for last-minute wedding buyers at premium price.",
+            "Create bridal combo bundles (suit + jewelry + perfume) for +60% AOV uplift."
+        ]
+    },
+    {
+        "id": "1212-year-end-sale-2026",
+        "name": "12.12 Year-End Clearance Sale 🎊",
+        "name_ur": "12.12 سال آخر کلیئرنس سیل",
+        "hijri_date": "Sha'ban 1448 AH",
+        "start_date": "2026-12-12",
+        "end_date": "2026-12-31",
+        "demand_spike_pct": 220,
+        "peak_window": "12th December to 31st December 2026",
+        "sourcing_cutoff": "2026-11-20",
+        "courier_cutoff": "2026-12-28",
+        "status": "Long-Term Strategic",
+        "description": (
+            "📊 Past Analysis → 12.12 is Pakistan's 3rd biggest online shopping day. "
+            "It serves as a clearance festival — sellers dump excess 11.11 inventory at discounts. "
+            "Electronics, home goods, and fashion bundles dominate with 2.2x GMV multiplier.\n\n"
+            "🔮 2026 Forecast: Use 12.12 to liquidate remaining 11.11 stock. Bundle slow-movers "
+            "with bestsellers for clearance combos. Year-end gifting (corporate gifts, "
+            "family sets) will drive B2B orders above PKR 10,000."
+        ),
+        "top_categories": [
+            "Electronics Clearance (Bundles)",
+            "Winter Fashion Clearance Sets",
+            "Home & Kitchen Gift Sets",
+            "Corporate Gift Hampers",
+            "Kids Toy & Clothing Bundles"
+        ],
+        "recommended_lead_time_days": 30,
+        "historical_gmv_index": 82,
+        "courier_notes": "Year-end courier rush. Book extra slots. Avoid COD on high-value orders above PKR 8,000.",
+        "seller_checklist": [
+            "Plan clearance pricing strategy by November 20 for 11.11 leftover stock.",
+            "Create 'Year-End Gift Set' bundles — corporate buyers order 5-20 units.",
+            "Run countdown timer campaigns on WhatsApp broadcast (3x open rate vs email).",
+            "Offer free gift-wrapping service — 28% conversion uplift on gift orders."
+        ]
+    },
+    {
+        "id": "ramadan-2027",
+        "name": "Ramadan 2027 — Pre-Sourcing Intelligence 🌙",
+        "name_ur": "رمضان 2027 — ابتدائی سورسنگ پلاننگ",
+        "hijri_date": "1 Ramadan 1449 AH",
+        "start_date": "2027-02-07",
+        "end_date": "2027-03-09",
+        "demand_spike_pct": 250,
+        "peak_window": "First 20 days of Ramadan 2027",
+        "sourcing_cutoff": "2027-01-10",
+        "courier_cutoff": "2027-03-03",
+        "status": "Long-Term Strategic",
+        "description": (
+            "📊 Past Analysis → Ramadan 2026 (Feb-Mar) delivered +240% demand spike — "
+            "the 2nd highest event of the year. Kitchen gadgets (+340%), modest wear (+210%), "
+            "and Islamic decor (+180%) were the top performers. Sellers who sourced 40+ days "
+            "early captured 5x more orders than last-minute competitors.\n\n"
+            "🔮 2027 Forecast: Ramadan 1449 starts ~Feb 7, 2027. Begin market research NOW "
+            "(Sep 2026) for new product trends. Rechargeable kitchen tools, premium Abayas, "
+            "and Ramadan hampers will again be mega-sellers. "
+            "⚡ Sourcing deadline: January 10, 2027."
+        ),
+        "top_categories": [
+            "Ramadan Kitchen Gadgets (Rechargeable Choppers, Air Fryers)",
+            "Modest Wear — Abayas, Hijabs, Modest Kurtis",
+            "Islamic Lifestyle (Prayer Mats, Tasbihs, Quran Stands)",
+            "Dates & Ramadan Hamper Gift Sets",
+            "Pre-Eid Unstitched Embroidered Fabric"
+        ],
+        "recommended_lead_time_days": 45,
+        "historical_gmv_index": 92,
+        "courier_notes": "Heavy congestion from 15th Ramadan onward. Air cargo recommended for high-ticket items.",
+        "seller_checklist": [
+            "Start competitor product research for Ramadan 2027 categories in Oct 2026.",
+            "Sample new kitchen gadget products from wholesale hubs by November 2026.",
+            "Build your Ramadan 2027 email & WhatsApp subscriber list from December onward.",
+            "Submit Daraz Ramadan Mega deals application by December 2026 (early access).",
+            "Lock Faisalabad fabric sourcing before January 10, 2027 deadline."
+        ]
+    },
+    {
+        "id": "eid-ul-fitr-2027",
+        "name": "Eid-ul-Fitr 2027 — Early Intelligence 🎉",
+        "name_ur": "عید الفطر 2027 — ابتدائی تیاری",
+        "hijri_date": "1 Shawwal 1449 AH",
+        "start_date": "2027-03-09",
+        "end_date": "2027-03-12",
+        "demand_spike_pct": 330,
+        "peak_window": "Last 15 days of Ramadan 2027",
+        "sourcing_cutoff": "2027-02-01",
+        "courier_cutoff": "2027-03-05",
+        "status": "Long-Term Strategic",
+        "description": (
+            "📊 Past Analysis → Eid-ul-Fitr 2026 was Pakistan's #1 annual e-commerce event "
+            "with +320% surge and 100/100 GMV index. Women's festive pret, men's kurta pajama, "
+            "and Eid jewelry drove the highest order volumes. Courier cutoffs 4-5 days before Eid "
+            "are non-negotiable — late sellers lost 30% of revenue to returns.\n\n"
+            "🔮 2027 Forecast: Eid ~March 9, 2027. Expect +330% or higher as TikTok Shop matures. "
+            "Ready-to-Wear (Pret) will dominate over unstitched. Start building your Eid collection "
+            "by January 2027. Influencer collaborations should be locked by February 2027."
+        ),
+        "top_categories": [
+            "Women's Ready-to-Wear Eid Pret (3-Piece)",
+            "Men's Embroidered Kurta Pajama",
+            "Kids Eid Outfits (Boys & Girls)",
+            "Eid Jewelry & Bangles Sets",
+            "Khussas & Festive Footwear"
+        ],
+        "recommended_lead_time_days": 50,
+        "historical_gmv_index": 100,
+        "courier_notes": "Critical: All Eid deliveries MUST be dispatched by March 5, 2027. No exceptions.",
+        "seller_checklist": [
+            "Begin Eid 2027 collection design brief in November 2026.",
+            "Lock Lahore/Karachi manufacturing slots by December 2026.",
+            "Book TikTok & Instagram influencer collaborations by February 2027.",
+            "Set up pre-order system for Eid suits by January 2027 for early buyers.",
+            "Strictly enforce March 5 dispatch cutoff — no orders after this date for Eid delivery."
         ]
     }
 ]
+
+# Auto-compute days_remaining dynamically
+def _build_events():
+    events = []
+    for ev in _EVENTS_RAW:
+        ev_copy = dict(ev)
+        ev_copy["days_remaining"] = _days_left(ev["start_date"])
+        events.append(ev_copy)
+    # Sort: active first (start_date <= today), then upcoming by start_date
+    today = date.today()
+    def sort_key(e):
+        try:
+            sd = datetime.strptime(e["start_date"], "%Y-%m-%d").date()
+            ed = datetime.strptime(e["end_date"], "%Y-%m-%d").date() if e["end_date"] != "Rolling daily" else sd
+            if sd <= today <= ed:
+                return (0, sd)  # Currently active
+            elif sd > today:
+                return (1, sd)  # Upcoming
+            else:
+                return (2, sd)  # Past (should not appear but safety)
+        except Exception:
+            return (1, date.max)
+    events.sort(key=sort_key)
+    return events
+
+EVENTS_DATA = _build_events()
 
 # -----------------------------------------------------------------------------
 # 2. WINNING PRODUCTS CATALOG (Pakistan Market Specific)
@@ -240,7 +439,7 @@ WINNING_PRODUCTS_DATA = [
         "name_ur": "عربی رائل عود اور وائٹ مسک پرفیوم آئل",
         "category": "Perfumes & Lifestyle",
         "event_id": "ramadan-2026",
-        "wholesale_hub": "Karkhano Market, Peshawar / Bolton Market, Karachi",
+        "wholesale_hub": "Shah Alam Market, Lahore",
         "sourcing_cost": 550,
         "suggested_retail_price": 1899,
         "typical_ad_cac": 380,

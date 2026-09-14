@@ -107,25 +107,26 @@ if sort_option == "Demand Surge (% Spike: Highest First)":
     events.sort(key=lambda x: x["demand_spike_pct"], reverse=True)
 
 # Top summary KPIs for events
-active_events_count = len([e for e in events if e.get("days_remaining", 999) <= 45])
-nearest_event = events[0] if events else None
+active_events_count = len([e for e in events if e.get("event_phase") == "Current"])
+future_events = [e for e in events if e.get("event_phase") == "Upcoming"]
+next_peak = future_events[0] if future_events else None
 
 top_m1, top_m2, top_m3 = st.columns(3)
 with top_m1:
     render_metric_card(
-        label="Urgent Pre-Order Peaks (<45 Days)",
+        label="Current Events",
         value=f"{active_events_count} Events",
-        subtext="Immediate inventory & creative preparation required",
-        delta="Critical Window",
+        subtext="Events happening today",
+        delta="Live Now",
         delta_color="#EF4444"
     )
 
 with top_m2:
     render_metric_card(
         label="Next Sourcing Cutoff",
-        value=nearest_event["sourcing_cutoff"] if nearest_event else "N/A",
-        subtext=f"Wholesale order deadline for {nearest_event['name'] if nearest_event else ''}",
-        delta="Action Required",
+        value=next_peak["start_date"] if next_peak else "N/A",
+        subtext=f"Next peak: {next_peak['name'] if next_peak else 'No upcoming event'}",
+        delta="Next Upcoming",
         delta_color="#F59E0B"
     )
 
@@ -142,23 +143,39 @@ with top_m3:
 st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# DETAILED EVENT CARDS & ACTION CHECKLISTS
+# QUICK JUMP NAV — Clickable event links
 # -----------------------------------------------------------------------------
 st.markdown("### 🗓️ Synchronized Cultural & Commercial Event Roadmap")
 
+if events:
+    from datetime import date, datetime
+    today = date.today()
+
+    # Build quick-jump pill links
+    jump_links_html = "<div style='display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;'>"
+    for ev in events:
+        eid = ev.get("id", "")
+        ename = ev.get("name", eid)
+        # Detect live
+        try:
+            sd = datetime.strptime(ev["start_date"], "%Y-%m-%d").date()
+            end = datetime.strptime(ev["end_date"], "%Y-%m-%d").date()
+            is_live = sd <= today <= end
+        except Exception:
+            is_live = False
+
+        color = "#10B981" if is_live else "#3B82F6"
+        label = f"🟢 {ename}" if is_live else f"📅 {ename}"
+        jump_links_html += (
+            f"<a href='#event-{eid}' style='background:#1E293B; border:1px solid {color}; "
+            f"color:{color}; padding:5px 12px; border-radius:20px; font-size:0.78rem; "
+            f"font-weight:600; text-decoration:none; white-space:nowrap;'>{label}</a>"
+        )
+    jump_links_html += "</div>"
+    st.html(jump_links_html)
+
 for event in events:
     render_event_card(event)
-    
-    with st.expander(f"📋 View Action Checklist & Courier Rules for {event['name']}", expanded=False):
-        c1, c2 = st.columns([55, 45])
-        with c1:
-            st.markdown("#### ✅ Recommended Seller Milestone Checklist")
-            for item in event.get("seller_checklist", []):
-                st.markdown(f"- {item}")
-        with c2:
-            st.markdown("#### 🚚 Courier & Logistics Advisory")
-            st.warning(f"**Logistics Notice:** {event.get('courier_notes', 'N/A')}")
-            st.markdown(f"**Recommended Wholesale Lead Time:** `{event.get('recommended_lead_time_days', 30)} Days` before event starts.")
 
 st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
 

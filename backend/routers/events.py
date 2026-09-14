@@ -5,6 +5,7 @@ Event Calendar and Demand Alerts API Endpoints (CRUD operations).
 
 import json
 import uuid
+from datetime import date, datetime
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -15,19 +16,67 @@ from backend.schemas import EventCreate, EventResponse
 router = APIRouter(prefix="/events", tags=["Event Intelligence"])
 
 
+def _recalculate_days(event_dict: dict) -> dict:
+    """Dynamically recalculate days_remaining from today so it's always current."""
+    try:
+        start = datetime.strptime(event_dict["start_date"], "%Y-%m-%d").date()
+        end = datetime.strptime(event_dict["end_date"], "%Y-%m-%d").date()
+        delta = (start - date.today()).days
+        event_dict["days_remaining"] = max(0, delta)
+        if start <= date.today() <= end:
+            event_dict["event_phase"] = "Current"
+        elif start > date.today():
+            event_dict["event_phase"] = "Upcoming"
+        else:
+            event_dict["event_phase"] = "Past"
+    except Exception:
+        pass
+    return event_dict
+
+
 @router.get("", response_model=List[dict])
 def get_all_events(
     status_filter: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
-    """Retrieve all synchronized Hijri-Gregorian events with optional filtering."""
-    query = db.query(EventModel).order_by(EventModel.days_remaining.asc())
-    events = query.all()
+    """Retrieve all synchronized Hijri-Gregorian events with optional filtering.
+    Only returns CURRENT and UPCOMING events (today or future start dates).
+    Days remaining is recalculated dynamically on every request.
+    """
+    today = date.today()
+    all_events = db.query(EventModel).all()
+
+    # Filter: only show events that haven't fully ended yet
+    active_and_future = []
+    for e in all_events:
+        try:
+            end_d = datetime.strptime(e.end_date, "%Y-%m-%d").date()
+            if end_d >= today:
+                active_and_future.append(e)
+        except Exception:
+            active_and_future.append(e)  # keep if parse fails (e.g. "Rolling daily")
 
     if status_filter and status_filter != "All":
-        events = [e for e in events if status_filter.lower() in e.status.lower()]
+        active_and_future = [e for e in active_and_future if status_filter.lower() in e.status.lower()]
 
-    return [e.to_dict() for e in events]
+    # Sort: currently active events first, then by start_date ascending
+    def sort_key(e):
+        try:
+            sd = datetime.strptime(e.start_date, "%Y-%m-%d").date()
+            ed = datetime.strptime(e.end_date, "%Y-%m-%d").date()
+            if sd <= today <= ed:
+                return (0, sd)
+            elif sd > today:
+                return (1, sd)
+            else:
+                return (2, sd)
+        except Exception:
+            return (1, date.max)
+
+    active_and_future.sort(key=sort_key)
+
+    return [_recalculate_days(e.to_dict()) for e in active_and_future]
+
 
 
 @router.get("/{event_id}")

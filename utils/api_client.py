@@ -9,6 +9,7 @@ Dual-Mode Architecture:
 """
 
 import os
+from datetime import date, datetime
 from typing import List, Dict, Any, Optional
 import requests
 import pandas as pd
@@ -78,9 +79,35 @@ class ApiClient:
         except Exception:
             pass
 
-        # Fallback local calculation
-        upcoming_events = sorted(EVENTS_DATA, key=lambda x: x["days_remaining"])
+        # Fallback local calculation using the same current/upcoming date rules as the API.
+        today = date.today()
+        current_events = []
+        upcoming_events = []
+        for raw_event in EVENTS_DATA:
+            try:
+                event = dict(raw_event)
+                start = datetime.strptime(event["start_date"], "%Y-%m-%d").date()
+                end = datetime.strptime(event["end_date"], "%Y-%m-%d").date()
+                if end < today:
+                    continue
+                event["days_remaining"] = max(0, (start - today).days)
+                if start <= today <= end:
+                    current_events.append(event)
+                else:
+                    upcoming_events.append(event)
+            except (KeyError, TypeError, ValueError):
+                continue
+
+        current_events.sort(key=lambda event: event["start_date"])
+        upcoming_events.sort(key=lambda event: event["start_date"])
+        current_live = current_events[0] if current_events else None
         next_event = upcoming_events[0] if upcoming_events else None
+        seasonal_candidates = current_events + upcoming_events
+        peak_event = max(
+            seasonal_candidates,
+            key=lambda event: event.get("demand_spike_pct", 0),
+            default=None
+        )
         total_products = len(WINNING_PRODUCTS_DATA)
         avg_opportunity = sum(p["opportunity_score"] for p in WINNING_PRODUCTS_DATA) / max(total_products, 1)
         all_cities = list(CITY_COD_TIERS.values())
@@ -89,11 +116,24 @@ class ApiClient:
         return {
             "status": "success",
             "next_event": next_event,
+            "current_live_event": current_live,
+            "top_upcoming_events": upcoming_events[:3],
             "total_winning_products": total_products,
             "avg_opportunity_score": round(avg_opportunity, 1),
             "benchmark_market_rto_pct": round(avg_market_rto, 1),
-            "active_season": "Pre-Ramadan & Eid Festive Buildup",
-            "demand_multiplier_peak": "3.2x",
+            "active_season": (
+                f"LIVE: {current_live['name']}" if current_live
+                else f"Upcoming: {next_event['name']}" if next_event
+                else "Pakistan E-Commerce Season"
+            ),
+            "seasonal_sale": {
+                "current_event": current_live,
+                "next_event": next_event,
+                "peak_event": peak_event,
+            },
+            "demand_multiplier_peak": (
+                f"+{peak_event.get('demand_spike_pct', 0)}%" if peak_event else "N/A"
+            ),
             "urgent_actions_count": 3,
             "total_skus_tracked": len(SAMPLE_STORE_INVENTORY),
             "total_inventory_value_pkr": 680450.0,
@@ -128,7 +168,21 @@ class ApiClient:
         except Exception:
             pass
 
-        events = sorted(EVENTS_DATA, key=lambda x: x["days_remaining"])
+        today = date.today()
+        events = []
+        for event in EVENTS_DATA:
+            try:
+                start = datetime.strptime(event["start_date"], "%Y-%m-%d").date()
+                end = datetime.strptime(event["end_date"], "%Y-%m-%d").date()
+                if end < today:
+                    continue
+                event = dict(event)
+                event["days_remaining"] = max(0, (start - today).days)
+                event["event_phase"] = "Current" if start <= today <= end else "Upcoming"
+                events.append(event)
+            except (KeyError, TypeError, ValueError):
+                continue
+        events.sort(key=lambda x: (x["event_phase"] != "Current", x["start_date"]))
         if status_filter and status_filter != "All":
             events = [e for e in events if status_filter.lower() in e["status"].lower()]
         return events
