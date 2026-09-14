@@ -58,6 +58,7 @@ seasonal_current = seasonal_sale.get("current_event")
 seasonal_next = seasonal_sale.get("next_event") or next_event
 seasonal_peak = seasonal_sale.get("peak_event")
 tracked_products = ApiClient.get_winning_products(min_opportunity=0)
+event_feed = ([current_live] if current_live else []) + top_upcoming
 demand_curve = ApiClient.get_demand_curve()
 today        = date.today()
 
@@ -99,18 +100,32 @@ if current_live:
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
 with kpi1:
-    if next_event:
+    if current_live:
+        current_end = current_live.get("end_date", "N/A")
+        upcoming_text = (
+            f"Next: {next_event.get('name', 'N/A')} · {next_event.get('start_date', 'N/A')}"
+            if next_event else "No upcoming event"
+        )
         render_metric_card(
-            label="Next Upcoming Event",
+            label="Current & Upcoming Events",
+            value=f"LIVE · {current_live.get('name', 'Current Event')}",
+            subtext=f"Ends: {current_end} | {upcoming_text}",
+            delta=f"+{current_live.get('demand_spike_pct', 0)}% Current Demand",
+            delta_color="#10B981",
+            badge="CURRENT + NEXT"
+        )
+    elif next_event:
+        render_metric_card(
+            label="Current & Upcoming Events",
             value=f"{next_event.get('days_remaining', 0)} Days Left",
-            subtext=f"{next_event.get('hijri_date','')} - {next_event.get('name','')}",
+            subtext=f"Upcoming: {next_event.get('name','')} · Starts {next_event.get('start_date', 'N/A')}",
             delta=f"+{next_event.get('demand_spike_pct', 0)}% Volume",
             delta_color="#10B981",
             badge="UPCOMING"
         )
     else:
         render_metric_card(
-            label="Next Peak Event",
+            label="Current & Upcoming Events",
             value="All Covered",
             subtext="Check Event Intelligence tab",
             delta="View Full Calendar",
@@ -200,16 +215,26 @@ if show_products:
 
 st.html("<div style='margin-top:18px;'></div>")
 
-# ─── 2. UPCOMING EVENTS — Top 3 Clickable Cards
-st.markdown("### Upcoming Events — Click to See Full Details")
+# ─── 2. CURRENT & UPCOMING EVENTS — Top 3 Clickable Cards
+st.markdown("### Current & Upcoming Events — Click to See Full Details")
 
-if top_upcoming:
-    cols = st.columns(min(len(top_upcoming), 3))
-    for idx, ev in enumerate(top_upcoming[:3]):
+if event_feed:
+    cols = st.columns(min(len(event_feed), 3))
+    for idx, ev in enumerate(event_feed[:3]):
         days  = ev.get("days_remaining", 0)
         spike = ev.get("demand_spike_pct", 0)
 
-        if days <= 20:
+        try:
+            event_start = datetime.strptime(ev["start_date"], "%Y-%m-%d").date()
+            event_end = datetime.strptime(ev["end_date"], "%Y-%m-%d").date()
+            is_current = event_start <= today <= event_end
+        except (KeyError, TypeError, ValueError):
+            is_current = False
+
+        if is_current:
+            border = "#10B981"
+            dot = "CURRENT"
+        elif days <= 20:
             border = "#EF4444"
             dot    = "URGENT"
         elif days <= 60:
