@@ -134,6 +134,10 @@ with tab_finder:
                 </div>
             """)
             contact = get_sourcing_contact(prod.get("wholesale_hub", ""))
+            listing_url = contact.get("listing_url")
+            if not listing_url:
+                listing_url = "https://www.google.com/maps/search/?api=1&query=wholesale+supplier"
+            verified_on = contact.get("verified_on", "Not available")
             phone_label = (
                 f"☎️ {contact['phone']}"
                 if contact.get("phone")
@@ -147,12 +151,12 @@ with tab_finder:
             )
             st.link_button(
                 "Open public supplier listings",
-                contact["listing_url"],
+                listing_url,
                 key=f"sourcing-listing-{prod['id']}",
                 use_container_width=True,
             )
             st.caption(
-                f"Checked: {contact['verified_on']} · Open the listing to see current "
+                f"Checked: {verified_on} · Open the listing to see current "
                 "business details and verify the store name before ordering."
             )
 
