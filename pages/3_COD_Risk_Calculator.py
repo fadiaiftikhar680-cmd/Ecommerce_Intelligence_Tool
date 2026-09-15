@@ -51,7 +51,7 @@ with tab_calc:
             "Apparel & Footwear (Size Risk)",
             "Festive Pret / Unstitched",
             "Kitchen & Home Appliances",
-            "Perfumes & Fragrances",
+            "Mists & Fragrances",
             "Electronics & Gadgets",
             "Jewelry & Fashion Accessories"
         ]

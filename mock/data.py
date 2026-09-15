@@ -198,7 +198,7 @@ _EVENTS_RAW = [
             "Bridal Gold-Plated Jewelry",
             "Groom Sherwani & Nagra Footwear",
             "Mehndi & Baraat Decor Sets",
-            "Luxury Perfumes & Ittars"
+            "Luxury Mists & Body Sprays"
         ],
         "recommended_lead_time_days": 45,
         "historical_gmv_index": 88,
@@ -207,7 +207,7 @@ _EVENTS_RAW = [
             "Source velvet & formal fabrics from Faisalabad by November 10.",
             "Enable international shipping on Shopify for diaspora buyers (UK, UAE, USA).",
             "Offer express 1-2 day delivery for last-minute wedding buyers at premium price.",
-            "Create bridal combo bundles (suit + jewelry + perfume) for +60% AOV uplift."
+            "Create bridal combo bundles (suit + jewelry + mist) for +60% AOV uplift."
         ]
     },
     {
@@ -435,9 +435,9 @@ WINNING_PRODUCTS_DATA = [
     },
     {
         "id": "prod-004",
-        "name": "Arabic Royal Oudh & White Musk Concentrated Perfume Oil (12ml)",
-        "name_ur": "عربی رائل عود اور وائٹ مسک پرفیوم آئل",
-        "category": "Perfumes & Lifestyle",
+        "name": "Arabic Royal Oudh & White Musk Body Mist (120ml)",
+        "name_ur": "عربی رائل عود اور وائٹ مسک باڈی مسٹ",
+        "category": "Mists & Lifestyle",
         "event_id": "ramadan-2026",
         "wholesale_hub": "Shah Alam Market, Lahore",
         "sourcing_cost": 550,
@@ -452,9 +452,9 @@ WINNING_PRODUCTS_DATA = [
         "search_volume_pk": "65K/month",
         "profit_margin_delivered_pct": 36.8,
         "selling_points": [
-            "100% Alcohol-Free Attar, ideal for Taraweeh & Eid prayers",
-            "Long-lasting 18+ hours scent projection",
-            "Luxury crystal bottle presentation in velvet pouch"
+            "Fresh long-lasting body mist for daily and festive wear",
+            "Oudh and white musk blend with broad everyday appeal",
+            "Premium spray bottle presentation, easy to ship"
         ],
         "image_url": "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=600&q=80"
     },
@@ -832,8 +832,8 @@ SAMPLE_STORE_INVENTORY = [
     },
     {
         "sku": "SKU-ATTAR-03",
-        "title": "Dehn Al Oudh Concentrated Ittar 6ml",
-        "category": "Perfumes",
+        "title": "Dehn Al Oudh Fragrance Mist 60ml",
+        "category": "Mists",
         "stock": 85,
         "unit_cost": 450,
         "selling_price": 1499,

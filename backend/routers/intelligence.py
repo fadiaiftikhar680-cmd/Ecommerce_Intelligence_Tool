@@ -53,7 +53,7 @@ WHOLESALE_HUBS = [
     {
         "hub_name": "Bolton Market & Light House",
         "city": "Karachi",
-        "primary_categories": ["Imported Chinese Goods", "Handbags & Wallets", "Watches & Perfumes", "Mobile Accessories"],
+        "primary_categories": ["Imported Chinese Goods", "Handbags & Wallets", "Watches & Mists", "Mobile Accessories"],
         "credit_terms": "Cash only; online transfer to shop owner Bank Alfalah / Meezan account upon physical carton count.",
         "bargaining_tip": "Carton-level pricing is 15-22% cheaper than open shelf pricing. Always verify master carton seals.",
         "recommended_contact_channel": "Wholesale traders in Denso Hall and Medicine/Cosmetics Lane."
@@ -85,7 +85,7 @@ SMART_BUNDLES = [
         "components": [
             {"item": "Chiffon Embroidered 3-Piece Pret", "individual_price": 3800, "cogs": 1400},
             {"item": "Handcrafted Tilla Khussas", "individual_price": 2200, "cogs": 750},
-            {"item": "Festive Attar Fragrance (12ml)", "individual_price": 1200, "cogs": 350}
+            {"item": "Festive Body Mist (120ml)", "individual_price": 1200, "cogs": 350}
         ],
         "standalone_total_retail": 7200,
         "bundled_selling_price": 5950,

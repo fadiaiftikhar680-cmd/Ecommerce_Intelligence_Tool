@@ -8,7 +8,7 @@ A Smart Event & Profit Intelligence SaaS Platform specifically engineered for th
 
 E-commerce sales in Pakistan undergo dramatic seasonal spikes around cultural and commercial milestones:
 - **Ramadan Mubarak & Pre-Eid Preparation** (Kitchen, modest fashion, unstitched fabric surge)
-- **Eid-ul-Fitr Grand Fashion Season** (Highest volume for Pret, Khussas, Jewelry, Perfumes)
+- **Eid-ul-Fitr Grand Fashion Season** (Highest volume for Pret, Khussas, Jewelry, Mists)
 - **Eid-ul-Adha / Bari Eid** (BBQ equipment, Wazirabad steel knives, casual kurtas)
 - **14th August Azadi Mega Sale** (Summer stock clearance & patriotic merchandise)
 - **Blessed Friday / 11.11 Shopping Festival** (Biggest annual digital commerce discount spike)

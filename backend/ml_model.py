@@ -32,7 +32,7 @@ def generate_pakistan_ecommerce_training_data(n_samples: int = 6000) -> pd.DataF
         "Apparel & Footwear (Size Risk)",
         "Festive Pret / Unstitched",
         "Kitchen & Home Appliances",
-        "Perfumes & Fragrances",
+        "Mists & Fragrances",
         "Electronics & Gadgets",
         "Jewelry & Fashion Accessories"
     ]
@@ -68,7 +68,7 @@ def generate_pakistan_ecommerce_training_data(n_samples: int = 6000) -> pd.DataF
             "Apparel & Footwear (Size Risk)": 1.25,
             "Festive Pret / Unstitched": 1.05,
             "Kitchen & Home Appliances": 0.85,
-            "Perfumes & Fragrances": 0.95,
+            "Mists & Fragrances": 0.95,
             "Electronics & Gadgets": 1.15,
             "Jewelry & Fashion Accessories": 0.90
         }[category]
