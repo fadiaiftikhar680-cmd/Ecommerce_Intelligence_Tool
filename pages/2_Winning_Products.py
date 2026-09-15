@@ -8,6 +8,7 @@ and simulates real net profit, COD return drag, and break-even ROAS.
 import streamlit as st
 import pandas as pd
 from utils.api_client import ApiClient
+from utils.sourcing_contacts import get_sourcing_contact
 from components.layout import apply_custom_styles, render_market_ticker, render_page_header
 from components.cards import render_metric_card
 from components.charts import plot_opportunity_matrix, plot_margin_waterfall
@@ -132,6 +133,28 @@ with tab_finder:
                     </div>
                 </div>
             """)
+            contact = get_sourcing_contact(prod.get("wholesale_hub", ""))
+            phone_label = (
+                f"☎️ {contact['phone']}"
+                if contact.get("phone")
+                else "☎️ Phone: Not publicly verified"
+            )
+            st.info(
+                f"**Sourcing contact — {contact['store_name']} ({contact['city']})**  \n"
+                f"{phone_label}  \n"
+                f"**How to contact:** {contact['contact_method']}  \n"
+                f"_{contact['verification']}. Do not send advance payment until the supplier is verified._"
+            )
+            st.link_button(
+                "Open public supplier listings",
+                contact["listing_url"],
+                key=f"sourcing-listing-{prod['id']}",
+                use_container_width=True,
+            )
+            st.caption(
+                f"Checked: {contact['verified_on']} · Open the listing to see current "
+                "business details and verify the store name before ordering."
+            )
 
     # Opportunity Matrix Chart
     if products:
