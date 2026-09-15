@@ -34,6 +34,8 @@ with st.sidebar:
     else:
         st.info("🟡 **Layer 2 Standalone Engine: Active**")
         st.caption("Running in resilient offline mode with embedded ML model & SQLite fixtures.")
+        if backend_health.get("last_error"):
+            st.warning(f"Backend unavailable: {backend_health['last_error']}")
 
     st.markdown("---")
     st.markdown("### 🇵🇰 Pakistan Market Specs")

@@ -154,35 +154,24 @@ with tab_couriers:
 
     couriers = ApiClient.get_couriers()
     
-    cour_cols = st.columns(len(couriers))
-    for idx, c in enumerate(couriers):
-        with cour_cols[idx]:
-            st.html(f"""
-                <div class="custom-card" style="border-top: 3px solid #38BDF8; height: 100%;">
-                    <div style="font-size: 0.80rem; color: #94A3B8;">RATING: ⭐ {c['rating']}</div>
-                    <h3 style="margin: 4px 0 10px 0; color: #F8FAFC; font-size: 1.15rem;">{c['name']}</h3>
-                    
-                    <div style="background: #0F172A; padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span style="color: #64748B;">Base Delivery:</span>
-                            <strong style="color: #10B981;">₨ {c['base_rate_pkr']}</strong>
+    # Three columns keep each card readable on laptop and shared-browser widths.
+    for row_start in range(0, len(couriers), 3):
+        cour_cols = st.columns(3, gap="medium")
+        for col, c in zip(cour_cols, couriers[row_start:row_start + 3]):
+            with col:
+                st.html(f"""
+                    <div class="custom-card courier-card">
+                        <div class="courier-card__rating">RATING <span>★ {c['rating']}</span></div>
+                        <h3 class="courier-card__title">{c['name']}</h3>
+                        <div class="courier-card__metrics">
+                            <div><span>Base delivery</span><strong class="positive">₨ {c['base_rate_pkr']}</strong></div>
+                            <div><span>COD handling</span><strong>{c['cod_fee_pct']}%</strong></div>
+                            <div><span>Return penalty</span><strong class="negative">₨ {c['return_charge_pkr']}</strong></div>
+                            <div><span>Average SLA</span><strong class="info">{c['avg_sla_days']} days</strong></div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span style="color: #64748B;">COD Handling Fee:</span>
-                            <strong style="color: #F8FAFC;">{c['cod_fee_pct']}%</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span style="color: #64748B;">Return Penalty:</span>
-                            <strong style="color: #EF4444;">₨ {c['return_charge_pkr']}</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #64748B;">Avg Delivery SLA:</span>
-                            <strong style="color: #38BDF8;">{c['avg_sla_days']} Days</strong>
+                        <div class="courier-card__best">
+                            <span>Best for</span>
+                            <p>{c['best_for']}</p>
                         </div>
                     </div>
-
-                    <div style="font-size: 0.80rem; color: #94A3B8;">
-                        🎯 <strong>Best For:</strong> {c['best_for']}
-                    </div>
-                </div>
-            """)
+                """)

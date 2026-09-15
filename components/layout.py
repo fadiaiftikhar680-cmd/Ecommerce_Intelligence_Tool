@@ -3,6 +3,9 @@ components/layout.py
 Layout helpers, custom CSS styles, header styling, and market status ticker.
 """
 
+from datetime import date, datetime
+from html import escape
+
 import streamlit as st
 
 def apply_custom_styles():
@@ -55,6 +58,86 @@ def apply_custom_styles():
         .custom-card:hover {
             border-color: #059669;
             transform: translateY(-2px);
+        }
+
+        .courier-card {
+            border-top: 3px solid #38BDF8;
+            min-height: 330px;
+            padding: 20px;
+        }
+
+        .courier-card__rating {
+            color: #94A3B8;
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        .courier-card__rating span {
+            color: #FBBF24;
+            letter-spacing: 0;
+            margin-left: 6px;
+        }
+
+        .courier-card__title {
+            color: #F8FAFC;
+            font-size: 1.25rem;
+            line-height: 1.25;
+            min-height: 52px;
+            margin: 10px 0 16px;
+        }
+
+        .courier-card__metrics {
+            background: #0F172A;
+            border: 1px solid #263449;
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .courier-card__metrics div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 7px 0;
+            border-bottom: 1px solid #1E293B;
+            font-size: 0.82rem;
+        }
+
+        .courier-card__metrics div:last-child {
+            border-bottom: 0;
+        }
+
+        .courier-card__metrics span {
+            color: #94A3B8;
+        }
+
+        .courier-card__metrics strong {
+            color: #F8FAFC;
+            white-space: nowrap;
+        }
+
+        .courier-card__metrics .positive { color: #10B981; }
+        .courier-card__metrics .negative { color: #F87171; }
+        .courier-card__metrics .info { color: #38BDF8; }
+
+        .courier-card__best {
+            margin-top: 16px;
+            color: #94A3B8;
+            font-size: 0.82rem;
+        }
+
+        .courier-card__best span {
+            color: #CBD5E1;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .courier-card__best p {
+            color: #CBD5E1;
+            line-height: 1.5;
+            margin: 5px 0 0;
         }
 
         .card-label {
@@ -151,16 +234,68 @@ def apply_custom_styles():
     """, unsafe_allow_html=True)
 
 def render_market_ticker():
-    """Renders the top live market status bar with Hijri date and peak alert."""
-    st.html("""
+    """Render the current and next event from the live event service."""
+    from utils.api_client import ApiClient
+
+    events = ApiClient.get_events()
+    today = date.today()
+    current_event = None
+    next_event = None
+    for event in events:
+        try:
+            start = datetime.strptime(event["start_date"], "%Y-%m-%d").date()
+            end = datetime.strptime(event["end_date"], "%Y-%m-%d").date()
+        except (KeyError, TypeError, ValueError):
+            continue
+        if start <= today <= end and current_event is None:
+            current_event = event
+        elif start > today and next_event is None:
+            next_event = event
+
+    primary_event = current_event or next_event
+    if primary_event:
+        phase = "Current Event" if current_event else "Next Upcoming"
+        event_name = escape(primary_event.get("name", "Pakistan E-Commerce Calendar"))
+        hijri_date = escape(primary_event.get("hijri_date") or "Hijri date pending")
+        date_range = (
+            f"{escape(primary_event.get('start_date', ''))} to "
+            f"{escape(primary_event.get('end_date', ''))}"
+        )
+        days_remaining = primary_event.get("days_remaining", 0)
+        if current_event:
+            event_status = f"Ends in {max(0, (datetime.strptime(current_event['end_date'], '%Y-%m-%d').date() - today).days)} days"
+        else:
+            event_status = f"Starts in {days_remaining} days"
+    else:
+        phase = "Market Calendar"
+        event_name = "No active or upcoming event"
+        hijri_date = "Hijri date pending"
+        date_range = "Calendar update required"
+        event_status = "No scheduled event"
+
+    next_summary = ""
+    if current_event and next_event:
+        next_summary = (
+            f"<span>Next: <strong>{escape(next_event.get('name', 'Upcoming event'))}</strong> "
+            f"({next_event.get('days_remaining', 0)} days)</span>"
+        )
+    elif next_event is None and current_event is None:
+        next_summary = "<span>Next: <strong>No upcoming event</strong></span>"
+
+    st.html(f"""
         <div class="market-ticker">
             <div>
                 <span class="ticker-pill">🇵🇰 PAKISTAN MARKET PULSE</span>
-                <strong>Active Season:</strong> Ramadan 1448 AH Prep & Eid Sourcing Window
+                <strong>{phase}:</strong> {event_name}
+                <div style="color:#94A3B8;font-size:0.78rem;margin-top:5px;">
+                    {date_range} · {event_status}
+                </div>
             </div>
             <div style="text-align: right; font-size: 0.85rem;">
-                <span>🕒 Hijri: <strong>Sha'ban 1448 AH</strong></span> &nbsp;|&nbsp;
-                <span>🚚 High COD Traffic: <strong>Active</strong></span>
+                <span>🕒 Hijri: <strong>{hijri_date}</strong></span>
+                <div style="color:#CBD5E1;font-size:0.78rem;margin-top:5px;">
+                    {next_summary}
+                </div>
             </div>
         </div>
     """)

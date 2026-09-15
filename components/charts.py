@@ -6,6 +6,7 @@ Plotly analytics charts styled specifically for dark/slate eCommerce theme.
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
+from datetime import date, datetime
 from typing import List, Dict, Any
 
 CHART_THEME = {
@@ -16,7 +17,7 @@ CHART_THEME = {
 }
 
 def plot_demand_timeline(curve_data: List[Dict[str, Any]]) -> go.Figure:
-    """Plot the annual Pakistani eCommerce demand spike curve with seasonal milestones."""
+    """Plot an event-driven planning forecast with transparent assumptions."""
     df = pd.DataFrame(curve_data)
     
     fig = go.Figure()
@@ -26,48 +27,63 @@ def plot_demand_timeline(curve_data: List[Dict[str, Any]]) -> go.Figure:
         x=df["month"],
         y=df["demand_index"],
         mode="lines+markers",
-        line=dict(color="#10B981", width=3, shape="spline"),
+        line=dict(color="#10B981", width=3, shape="linear"),
         marker=dict(size=8, color="#059669", line=dict(width=2, color="#FFFFFF")),
         fill="tozeroy",
         fillcolor="rgba(16, 185, 129, 0.12)",
-        text=df.apply(lambda r: f"<b>{r['month']}</b>: {r['event']}<br>Demand Index: {r['demand_index']}/100<br>Sales Multiplier: {r['typical_gmv_multiplier']}", axis=1),
+        text=df.apply(lambda r: (
+            f"<b>{r['month']}</b>: {r['event']}<br>"
+            f"Demand Index: {r['demand_index']}/100<br>"
+            f"Planning multiplier: {r['typical_gmv_multiplier']}<br>"
+            f"Basis: current/upcoming event calendar + curated baseline"
+        ), axis=1),
         hoverinfo="text",
         name="Market Demand Index"
     ))
 
-    # Add peak milestone annotations
-    fig.add_annotation(
-        x="Mar", y=100,
-        text="🌙 Ramadan & Eid Peak (3.2x)",
-        showarrow=True, arrowhead=2, arrowcolor="#10B981", arrowsize=1,
-        font=dict(size=11, color="#10B981"),
-        bgcolor="#064E3B", bordercolor="#10B981", borderpad=4
-    )
+    # Annotate the two strongest scheduled event months instead of hardcoding
+    # Ramadan or 11.11, since Hijri dates move between Gregorian months.
+    for index, (_, row) in enumerate(df.nlargest(2, "demand_index").iterrows()):
+        event_label = str(row["event"]).split(" — ")[0].split(" - ")[0]
+        fig.add_annotation(
+            x=row["month"],
+            y=row["demand_index"],
+            text=f"{event_label}<br>{row['typical_gmv_multiplier']} planning uplift",
+            showarrow=True,
+            arrowhead=2,
+            arrowcolor="#38BDF8",
+            ax=0,
+            ay=-55 if index == 0 else -100,
+            font=dict(size=10, color="#38BDF8"),
+            bgcolor="#0C4A6E",
+            bordercolor="#38BDF8",
+            borderpad=4
+        )
 
-    fig.add_annotation(
-        x="Nov", y=98,
-        text="🛍️ 11.11 Blessed Friday (3.8x)",
-        showarrow=True, arrowhead=2, arrowcolor="#38BDF8", arrowsize=1,
-        font=dict(size=11, color="#38BDF8"),
-        bgcolor="#0C4A6E", bordercolor="#38BDF8", borderpad=4
-    )
-
+    chart_theme = dict(CHART_THEME)
+    chart_theme["margin"] = dict(l=70, r=25, t=105, b=55)
     fig.update_layout(
-        title="<b>Pakistan E-Commerce Demand Curve & Seasonal Sales Multipliers</b>",
-        title_font=dict(size=16, color="#F8FAFC"),
+        title=dict(
+            text="<b>Pakistan Next 12-Month Demand Forecast</b><br><sup>Event-driven planning estimate — not live sales data</sup>",
+            font=dict(size=16, color="#F8FAFC"),
+            x=0.02,
+            xanchor="left"
+        ),
         xaxis=dict(
             title="",
             gridcolor="#334155",
             showline=True,
-            linecolor="#334155"
+            linecolor="#334155",
+            tickangle=0
         ),
         yaxis=dict(
             title="Relative Demand Index (0-100)",
             gridcolor="#334155",
-            range=[40, 110]
+            range=[40, 110],
         ),
         hovermode="closest",
-        **CHART_THEME
+        height=500,
+        **chart_theme
     )
     return fig
 

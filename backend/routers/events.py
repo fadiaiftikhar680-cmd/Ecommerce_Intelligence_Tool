@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import EventModel
 from backend.schemas import EventCreate, EventResponse
+from backend.auth import require_admin_api_key
 
 router = APIRouter(prefix="/events", tags=["Event Intelligence"])
 
@@ -88,7 +89,7 @@ def get_event_by_id(event_id: str, db: Session = Depends(get_db)):
     return event.to_dict()
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, dependencies=[Depends(require_admin_api_key)])
 def create_custom_event(event_in: EventCreate, db: Session = Depends(get_db)):
     """Create a new custom seller event / flash sale campaign."""
     event_id = f"custom-{uuid.uuid4().hex[:8]}"
@@ -119,12 +120,14 @@ def create_custom_event(event_in: EventCreate, db: Session = Depends(get_db)):
     return new_event.to_dict()
 
 
-@router.delete("/{event_id}")
+@router.delete("/{event_id}", dependencies=[Depends(require_admin_api_key)])
 def delete_event(event_id: str, db: Session = Depends(get_db)):
     """Delete a custom event."""
     event = db.query(EventModel).filter(EventModel.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
+    if not event.is_custom:
+        raise HTTPException(status_code=403, detail="Built-in events cannot be deleted.")
     db.delete(event)
     db.commit()
     return {"status": "success", "message": f"Event {event_id} deleted successfully"}

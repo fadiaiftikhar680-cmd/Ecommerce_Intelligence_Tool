@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import ProductModel
 from backend.schemas import ProductCreate, ProductUpdate, ProductResponse
+from backend.auth import require_admin_api_key
 
 router = APIRouter(prefix="/products", tags=["Winning Products"])
 
@@ -49,9 +50,15 @@ def get_winning_products(
 
 
 @router.get("/categories")
-def get_product_categories(db: Session = Depends(get_db)):
-    """Return all unique product categories in the platform."""
-    cats = db.query(ProductModel.category).distinct().all()
+def get_product_categories(
+    event_id: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """Return unique product categories, optionally limited to an event."""
+    query = db.query(ProductModel.category)
+    if event_id and event_id != "All Events":
+        query = query.filter(ProductModel.event_id == event_id)
+    cats = query.distinct().all()
     categories_list = sorted([c[0] for c in cats if c[0]])
     return ["All Categories"] + categories_list
 
@@ -65,7 +72,7 @@ def get_product_by_id(product_id: str, db: Session = Depends(get_db)):
     return product.to_dict()
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, dependencies=[Depends(require_admin_api_key)])
 def create_winning_product(prod_in: ProductCreate, db: Session = Depends(get_db)):
     """Add a new winning product to the database."""
     product_id = f"custom-prod-{uuid.uuid4().hex[:8]}"
@@ -81,7 +88,7 @@ def create_winning_product(prod_in: ProductCreate, db: Session = Depends(get_db)
         name_ur=prod_in.name_ur,
         event_id=prod_in.event_id,
         category=prod_in.category,
-        sourcing_hub=prod_in.sourcing_hub,
+        sourcing_hub=prod_in.wholesale_hub or prod_in.sourcing_hub,
         sourcing_hub_city=prod_in.sourcing_hub_city,
         sourcing_cost=prod_in.sourcing_cost,
         suggested_retail_price=prod_in.suggested_retail_price,
@@ -100,12 +107,14 @@ def create_winning_product(prod_in: ProductCreate, db: Session = Depends(get_db)
     return new_prod.to_dict()
 
 
-@router.delete("/{product_id}")
+@router.delete("/{product_id}", dependencies=[Depends(require_admin_api_key)])
 def delete_product(product_id: str, db: Session = Depends(get_db)):
     """Delete a custom product."""
     product = db.query(ProductModel).filter(ProductModel.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+    if not product.is_custom:
+        raise HTTPException(status_code=403, detail="Built-in products cannot be deleted.")
     db.delete(product)
     db.commit()
     return {"status": "success", "message": f"Product {product_id} deleted successfully"}

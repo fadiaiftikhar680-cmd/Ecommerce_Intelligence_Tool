@@ -48,7 +48,7 @@ with tab_finder:
                     break
 
     with f2:
-        categories = ApiClient.get_categories()
+        categories = ApiClient.get_categories(event_id_filter)
         selected_cat = st.selectbox("Filter by Category", categories)
 
     with f3:
@@ -73,6 +73,17 @@ with tab_finder:
     )
 
     st.markdown(f"**Showing {len(products)} high-opportunity items for current market conditions:**")
+    if not products:
+        if event_id_filter:
+            st.info(
+                "No catalog items match this event and the selected score threshold. "
+                "Choose another event/category or select All Events to browse the full catalog."
+            )
+        else:
+            st.info(
+                "No catalog items match the selected category and score threshold. "
+                "Lower the minimum opportunity score or choose another category."
+            )
 
     # Display product cards in grid
     cols = st.columns(2)

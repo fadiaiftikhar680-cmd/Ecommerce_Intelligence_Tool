@@ -557,6 +557,174 @@ WINNING_PRODUCTS_DATA = [
             "Universal mobile holder"
         ],
         "image_url": "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80"
+    },
+    {
+        "id": "prod-009",
+        "name": "ANC Wireless TWS Earbuds with Charging Case",
+        "name_ur": "اے این سی وائرلیس ٹی ڈبلیو ایس ایئربڈز",
+        "category": "Smart Electronics & TWS Earbuds",
+        "event_id": "pre-1111-sourcing-2026",
+        "wholesale_hub": "Hall Road, Lahore / Saddar Electronic Market, Karachi",
+        "sourcing_cost": 780,
+        "suggested_retail_price": 1899,
+        "typical_ad_cac": 390,
+        "typical_courier_fee": 230,
+        "packaging_cost": 35,
+        "return_risk_default": "Medium",
+        "opportunity_score": 93,
+        "demand_trend": "+265% forecast for 11.11",
+        "competition_level": "High",
+        "search_volume_pk": "150K/month",
+        "profit_margin_delivered_pct": 30.4,
+        "selling_points": ["Affordable ANC upgrade for daily commuters", "Compact bundle suited to 11.11 flash deals"],
+        "image_url": "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=600&q=80"
+    },
+    {
+        "id": "prod-010",
+        "name": "Compact 4.5L Digital Air Fryer",
+        "name_ur": "کمپیکٹ ڈیجیٹل ایئر فرائر",
+        "category": "Home Appliances (Air Fryers, Heaters)",
+        "event_id": "blessed-friday-1111-2026",
+        "wholesale_hub": "Bolton Market, Karachi / Hall Road, Lahore",
+        "sourcing_cost": 5200,
+        "suggested_retail_price": 8999,
+        "typical_ad_cac": 850,
+        "typical_courier_fee": 420,
+        "packaging_cost": 120,
+        "return_risk_default": "Low",
+        "opportunity_score": 90,
+        "demand_trend": "+180% forecast for 11.11",
+        "competition_level": "Medium",
+        "search_volume_pk": "88K/month",
+        "profit_margin_delivered_pct": 22.1,
+        "selling_points": ["Family-size capacity at a flash-sale price", "Strong gifting and winter cooking appeal"],
+        "image_url": "https://images.unsplash.com/photo-1648138752703-7f2e6e5a6c4d?w=600&q=80"
+    },
+    {
+        "id": "prod-011",
+        "name": "Soft Fleece Hoodie and Jogger Winter Set",
+        "name_ur": "نرم فلیس ہُڈی اور جاگر ونٹر سیٹ",
+        "category": "Light Knitwear & Hoodies",
+        "event_id": "pre-winter-launch-2026",
+        "wholesale_hub": "Azam Cloth Market, Lahore / Faisalabad Textile Market",
+        "sourcing_cost": 1250,
+        "suggested_retail_price": 2999,
+        "typical_ad_cac": 500,
+        "typical_courier_fee": 250,
+        "packaging_cost": 45,
+        "return_risk_default": "Medium",
+        "opportunity_score": 86,
+        "demand_trend": "+145% early winter demand",
+        "competition_level": "Medium",
+        "search_volume_pk": "72K/month",
+        "profit_margin_delivered_pct": 27.6,
+        "selling_points": ["Warm everyday set for the first winter wave", "Easy-to-size bundle with broad family appeal"],
+        "image_url": "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600&q=80"
+    },
+    {
+        "id": "prod-012",
+        "name": "Embroidered Chiffon Formal Wedding Suit",
+        "name_ur": "کڑھائی والا شیفون فارمل ویڈنگ سوٹ",
+        "category": "Bridal & Mehndi Formal Wear",
+        "event_id": "shaadi-season-oct-2026",
+        "wholesale_hub": "Faisalabad Textile Market / Shah Alam Market, Lahore",
+        "sourcing_cost": 2800,
+        "suggested_retail_price": 6499,
+        "typical_ad_cac": 720,
+        "typical_courier_fee": 280,
+        "packaging_cost": 70,
+        "return_risk_default": "Medium",
+        "opportunity_score": 89,
+        "demand_trend": "+185% wedding-season forecast",
+        "competition_level": "High",
+        "search_volume_pk": "105K/month",
+        "profit_margin_delivered_pct": 31.0,
+        "selling_points": ["Event-ready formal styling for October weddings", "Premium look without branded-retail pricing"],
+        "image_url": "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&q=80"
+    },
+    {
+        "id": "prod-013",
+        "name": "Velvet Embroidered Formal Wedding Suit",
+        "name_ur": "ویلویٹ کڑھائی والا فارمل ویڈنگ سوٹ",
+        "category": "Velvet & Chiffon Formal Suits",
+        "event_id": "winter-wedding-peak-2026",
+        "wholesale_hub": "Faisalabad Textile Market / Shah Alam Market, Lahore",
+        "sourcing_cost": 3200,
+        "suggested_retail_price": 7499,
+        "typical_ad_cac": 780,
+        "typical_courier_fee": 300,
+        "packaging_cost": 80,
+        "return_risk_default": "Medium",
+        "opportunity_score": 91,
+        "demand_trend": "+290% winter wedding forecast",
+        "competition_level": "High",
+        "search_volume_pk": "98K/month",
+        "profit_margin_delivered_pct": 30.2,
+        "selling_points": ["Premium winter wedding fabric", "High-AOV formalwear with bundle potential"],
+        "image_url": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=600&q=80"
+    },
+    {
+        "id": "prod-014",
+        "name": "Year-End Home & Kitchen Gift Bundle",
+        "name_ur": "سال آخر ہوم اینڈ کچن گفٹ بنڈل",
+        "category": "Home & Kitchen Gift Sets",
+        "event_id": "1212-year-end-sale-2026",
+        "wholesale_hub": "Bolton Market, Karachi / Hall Road, Lahore",
+        "sourcing_cost": 1450,
+        "suggested_retail_price": 3299,
+        "typical_ad_cac": 520,
+        "typical_courier_fee": 260,
+        "packaging_cost": 65,
+        "return_risk_default": "Low",
+        "opportunity_score": 85,
+        "demand_trend": "+220% year-end gifting forecast",
+        "competition_level": "Medium",
+        "search_volume_pk": "61K/month",
+        "profit_margin_delivered_pct": 28.5,
+        "selling_points": ["Ready-to-gift bundle for year-end clearance", "Compact SKU with easy shipping"],
+        "image_url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=600&q=80"
+    },
+    {
+        "id": "prod-015",
+        "name": "Rechargeable Mini Kitchen Chopper",
+        "name_ur": "ریچارج ایبل منی کچن چوپر",
+        "category": "Ramadan Kitchen Gadgets (Rechargeable Choppers, Air Fryers)",
+        "event_id": "ramadan-2027",
+        "wholesale_hub": "Bolton Market, Karachi / Hall Road, Lahore",
+        "sourcing_cost": 690,
+        "suggested_retail_price": 1899,
+        "typical_ad_cac": 400,
+        "typical_courier_fee": 230,
+        "packaging_cost": 45,
+        "return_risk_default": "Low",
+        "opportunity_score": 92,
+        "demand_trend": "+340% Ramadan forecast",
+        "competition_level": "Medium",
+        "search_volume_pk": "110K/month",
+        "profit_margin_delivered_pct": 31.8,
+        "selling_points": ["Fast iftar prep in a compact rechargeable format", "Strong video-demo conversion angle"],
+        "image_url": "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=600&q=80"
+    },
+    {
+        "id": "prod-016",
+        "name": "Women's Ready-to-Wear Eid Pret 3-Piece",
+        "name_ur": "خواتین کا ریڈی ٹو وئیر عید پریٹ تھری پیس",
+        "category": "Women's Ready-to-Wear Eid Pret (3-Piece)",
+        "event_id": "eid-ul-fitr-2027",
+        "wholesale_hub": "Faisalabad Textile Market / Shah Alam Market, Lahore",
+        "sourcing_cost": 1900,
+        "suggested_retail_price": 4299,
+        "typical_ad_cac": 640,
+        "typical_courier_fee": 260,
+        "packaging_cost": 55,
+        "return_risk_default": "Medium",
+        "opportunity_score": 94,
+        "demand_trend": "+330% Eid forecast",
+        "competition_level": "High",
+        "search_volume_pk": "175K/month",
+        "profit_margin_delivered_pct": 29.4,
+        "selling_points": ["Ready-to-wear sizing reduces alteration friction", "Festive styling for Eid gifting and family orders"],
+        "image_url": "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&q=80"
     }
 ]
 
@@ -753,3 +921,61 @@ MONTHLY_DEMAND_CURVE = [
     {"month": "Nov", "event": "Blessed Friday & 11.11 Megasale", "demand_index": 98, "typical_gmv_multiplier": "3.8x"},
     {"month": "Dec", "event": "Peak Winter Shaadi & Year-End Sale", "demand_index": 88, "typical_gmv_multiplier": "2.2x"}
 ]
+
+
+def build_event_driven_demand_curve(events=None):
+    """Build a transparent annual forecast from the current event calendar.
+
+    The baseline is a curated planning benchmark. Current and future event
+    demand spikes override the baseline for their calendar month.
+    """
+    today = date.today()
+    active_events = events if events is not None else EVENTS_DATA
+    future_events = []
+    for event in active_events:
+        try:
+            start = datetime.strptime(event["start_date"], "%Y-%m-%d").date()
+            end = datetime.strptime(event["end_date"], "%Y-%m-%d").date()
+        except (KeyError, TypeError, ValueError):
+            continue
+        if end >= today:
+            future_events.append((event, start, end))
+
+    baseline_by_month = {
+        datetime.strptime(row["month"], "%b").month: row
+        for row in MONTHLY_DEMAND_CURVE
+    }
+    curve = []
+    for offset in range(12):
+        month_start = (today.replace(day=1) + timedelta(days=32 * offset)).replace(day=1)
+        next_month = (month_start + timedelta(days=32)).replace(day=1)
+        month_end = next_month - timedelta(days=1)
+        baseline = baseline_by_month[month_start.month]
+        month_events = [
+            (event, start)
+            for event, start, end in future_events
+            if start <= month_end and end >= month_start
+        ]
+        best_event = max(
+            month_events,
+            key=lambda item: item[0].get("demand_spike_pct", 0),
+            default=None
+        )
+        row = dict(baseline)
+        row["month"] = month_start.strftime("%b '%y")
+        row["forecast_month"] = month_start.isoformat()
+        row["is_forecast"] = True
+        row["event_names"] = [event.get("name", "Scheduled event") for event, _ in month_events]
+        if best_event:
+            event, _ = best_event
+            spike = int(event.get("demand_spike_pct", 0))
+            row["demand_index"] = max(
+                int(baseline["demand_index"]),
+                min(100, round(45 + spike * 0.145))
+            )
+            row["event"] = event.get("name", baseline["event"])
+            row["typical_gmv_multiplier"] = f"{1 + spike / 100:.1f}x"
+            row["event_id"] = event.get("id")
+            row["event_demand_spike_pct"] = spike
+        curve.append(row)
+    return curve

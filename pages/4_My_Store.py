@@ -45,6 +45,23 @@ if data_mode == "Upload Store Inventory CSV (Shopify/WooCommerce format)":
 if uploaded_file is not None:
     try:
         raw_df = pd.read_csv(uploaded_file)
+        required_columns = {"SKU", "Title", "Category", "Stock", "Unit Cost", "Selling Price"}
+        missing_columns = required_columns.difference(raw_df.columns)
+        if missing_columns:
+            raise ValueError("Missing required columns: " + ", ".join(sorted(missing_columns)))
+        raw_df = raw_df.rename(columns={
+            "SKU": "sku",
+            "Title": "title",
+            "Category": "category",
+            "Stock": "stock",
+            "Unit Cost": "unit_cost",
+            "Selling Price": "selling_price",
+        })
+        for column in ("stock", "unit_cost", "selling_price"):
+            raw_df[column] = pd.to_numeric(raw_df[column], errors="raise")
+        if (raw_df[["stock", "unit_cost", "selling_price"]] < 0).any().any():
+            raise ValueError("Stock, Unit Cost, and Selling Price cannot be negative.")
+        raw_df["status"] = "Healthy / Star Item"
         st.success("Custom inventory CSV uploaded successfully!")
         # Normalize columns if needed
         inventory_items = raw_df.to_dict(orient="records")

@@ -11,7 +11,7 @@ from typing import List, Dict, Any
 from fastapi import APIRouter, HTTPException
 from backend.gemini_service import GeminiServiceError, gemini_service
 from backend.schemas import GeminiInsightRequest, GeminiInsightResponse
-from mock.data import MONTHLY_DEMAND_CURVE
+from mock.data import build_event_driven_demand_curve
 
 router = APIRouter(prefix="/intelligence", tags=["Advanced Market Intelligence"])
 
@@ -149,8 +149,8 @@ def get_smart_bundles():
 
 @router.get("/demand-curve")
 def get_annual_demand_curve():
-    """Retrieve the 12-month annual e-commerce demand curve for Pakistan."""
-    return MONTHLY_DEMAND_CURVE
+    """Retrieve the current/upcoming-event-driven annual demand forecast."""
+    return build_event_driven_demand_curve()
 
 
 @router.post("/gemini-insight", response_model=GeminiInsightResponse)

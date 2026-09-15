@@ -17,16 +17,16 @@ class EventCreate(BaseModel):
     hijri_date: Optional[str] = Field(None, example="Safar 1449 AH")
     start_date: str = Field(..., example="2026-07-01")
     end_date: str = Field(..., example="2026-07-15")
-    demand_spike_pct: int = Field(120, example=150)
+    demand_spike_pct: int = Field(120, ge=0, le=1000, example=150)
     peak_window: Optional[str] = Field(None, example="1st to 10th July")
     sourcing_cutoff: Optional[str] = Field(None, example="2026-06-15")
     courier_cutoff: Optional[str] = Field(None, example="2026-07-12")
     status: str = Field("Upcoming Planning", example="Active Sourcing")
-    days_remaining: int = Field(30, example=25)
+    days_remaining: int = Field(30, ge=0, example=25)
     description: Optional[str] = Field(None)
     top_categories: List[str] = Field(default_factory=list)
-    recommended_lead_time_days: int = Field(30, example=30)
-    historical_gmv_index: int = Field(75, example=85)
+    recommended_lead_time_days: int = Field(30, ge=0, example=30)
+    historical_gmv_index: int = Field(75, ge=0, le=100, example=85)
     courier_notes: Optional[str] = Field(None)
     seller_checklist: List[str] = Field(default_factory=list)
 
@@ -47,9 +47,9 @@ class ProductCreate(BaseModel):
     wholesale_hub: Optional[str] = Field(None, example="Shah Alam Market & Faisalabad")
     sourcing_hub: Optional[str] = Field("Shah Alam Market & Faisalabad", example="Shah Alam Market, Lahore")
     sourcing_hub_city: Optional[str] = Field("Lahore", example="Lahore")
-    sourcing_cost: float = Field(..., example=1200.0)
-    suggested_retail_price: float = Field(..., example=3450.0)
-    profit_margin_delivered_pct: Optional[float] = Field(42.5, example=42.5)
+    sourcing_cost: float = Field(..., gt=0, example=1200.0)
+    suggested_retail_price: float = Field(..., gt=0, example=3450.0)
+    profit_margin_delivered_pct: Optional[float] = Field(42.5, ge=0, le=100, example=42.5)
     opportunity_score: int = Field(85, ge=0, le=100, example=92)
     return_risk_default: str = Field("Medium (22%)", example="Low (14%)")
     target_audience: Optional[str] = Field(None, example="Women aged 22-45")
@@ -81,19 +81,19 @@ class InventoryCreate(BaseModel):
     sku: str = Field(..., example="EID-SUIT-009")
     title: str = Field(..., example="Embroidered Lawn Kurti")
     category: str = Field(..., example="Apparel & Footwear (Size Risk)")
-    stock: int = Field(..., example=150)
-    unit_cost: float = Field(..., example=850.0)
-    selling_price: float = Field(..., example=2200.0)
-    monthly_velocity: int = Field(40, example=45)
+    stock: int = Field(..., ge=0, example=150)
+    unit_cost: float = Field(..., ge=0, example=850.0)
+    selling_price: float = Field(..., ge=0, example=2200.0)
+    monthly_velocity: int = Field(40, ge=0, example=45)
     status: Optional[str] = Field("Healthy / Star Item", example="Healthy / Star Item")
     event_affinity: Optional[str] = Field("Eid-ul-Fitr", example="Eid-ul-Fitr")
-    days_of_inventory: Optional[int] = Field(35, example=35)
+    days_of_inventory: Optional[int] = Field(35, ge=0, example=35)
     action_recommendation: Optional[str] = Field(None)
 
 
 class InventoryUpdate(BaseModel):
-    stock: Optional[int] = None
-    selling_price: Optional[float] = None
+    stock: Optional[int] = Field(None, ge=0)
+    selling_price: Optional[float] = Field(None, ge=0)
     status: Optional[str] = None
     action_recommendation: Optional[str] = None
 
@@ -108,7 +108,7 @@ class InventoryResponse(InventoryCreate):
 class RiskPredictionRequest(BaseModel):
     city: str = Field(..., example="Hyderabad")
     category: str = Field(..., example="Apparel & Footwear (Size Risk)")
-    order_value: float = Field(..., example=3450.0)
+    order_value: float = Field(..., gt=0, example=3450.0)
     customer_type: str = Field(..., example="First-Time Buyer (Cold Traffic / Ad Click)")
     address_type: str = Field(..., example="Moderate (Area/Mohalla mentioned, No house #)")
     courier: str = Field(..., example="PostEx COD")
@@ -148,14 +148,14 @@ class GeminiInsightResponse(BaseModel):
 # PRICING SIMULATION SCHEMAS
 # -----------------------------------------------------------------------------
 class PricingCalculationRequest(BaseModel):
-    sourcing_cost: float = Field(..., example=1400.0)
-    selling_price: float = Field(..., example=3400.0)
-    ad_cac: float = Field(..., example=650.0)
-    courier_fee: float = Field(..., example=220.0)
-    packaging_cost: float = Field(..., example=70.0)
-    return_rate_pct: float = Field(..., example=22.0)
-    return_courier_charge: float = Field(..., example=160.0)
-    discount_pct: float = Field(0.0, example=10.0)
+    sourcing_cost: float = Field(..., ge=0, example=1400.0)
+    selling_price: float = Field(..., gt=0, example=3400.0)
+    ad_cac: float = Field(..., ge=0, example=650.0)
+    courier_fee: float = Field(..., ge=0, example=220.0)
+    packaging_cost: float = Field(..., ge=0, example=70.0)
+    return_rate_pct: float = Field(..., ge=0, le=100, example=22.0)
+    return_courier_charge: float = Field(..., ge=0, example=160.0)
+    discount_pct: float = Field(0.0, ge=0, lt=100, example=10.0)
 
 
 class PricingCalculationResponse(BaseModel):

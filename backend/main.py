@@ -6,6 +6,7 @@ and real-time ML-powered COD return risk scoring.
 """
 
 from contextlib import asynccontextmanager
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.database import engine, Base
@@ -48,10 +49,18 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+allowed_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "FRONTEND_ORIGINS", "http://localhost:8501,http://127.0.0.1:8501"
+    ).split(",")
+    if origin.strip()
+]
+
 # CORS middleware for cross-origin requests from Streamlit or frontend clients
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

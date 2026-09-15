@@ -8,6 +8,7 @@ Dual-Mode Architecture:
    to local computation & database fixtures with zero UI disruption.
 """
 
+import logging
 import os
 from datetime import date, datetime
 from typing import List, Dict, Any, Optional
@@ -20,16 +21,34 @@ from mock.data import (
     COURIER_BENCHMARKS,
     SAMPLE_STORE_INVENTORY,
     MONTHLY_DEMAND_CURVE
+    , build_event_driven_demand_curve
 )
 from backend.ml_model import ml_service
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000/api")
 BACKEND_HEALTH_URL = "http://127.0.0.1:8000/health"
 TIMEOUT_SEC = 1.5
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "").strip()
+logger = logging.getLogger(__name__)
 
 
 class ApiClient:
     """Service client providing market intelligence, pricing calculations, and COD risk models."""
+
+    _last_api_error: Optional[str] = None
+
+    @staticmethod
+    def _record_api_error(operation: str, error: Exception | str) -> None:
+        ApiClient._last_api_error = f"{operation}: {error}"
+        logger.warning("Backend request failed - %s", ApiClient._last_api_error)
+
+    @staticmethod
+    def get_last_api_error() -> Optional[str]:
+        return ApiClient._last_api_error
+
+    @staticmethod
+    def _admin_headers() -> Dict[str, str]:
+        return {"X-Admin-API-Key": ADMIN_API_KEY} if ADMIN_API_KEY else {}
 
     @staticmethod
     def _normalize_product(product: Dict[str, Any]) -> Dict[str, Any]:
@@ -56,14 +75,17 @@ class ApiClient:
                     "database": data.get("database", "SQLite (Active)"),
                     "ml_model": data.get("ml_model", "RandomForest (Loaded)")
                 }
-        except Exception:
-            pass
+        except requests.RequestException as exc:
+            ApiClient._record_api_error("Backend health check", exc)
+        except ValueError as exc:
+            ApiClient._record_api_error("Backend health response", exc)
         return {
             "is_online": False,
             "service": "Local High-Performance Engine (Fallback)",
             "version": "1.0-embedded",
             "database": "SQLite / Local Fixtures",
-            "ml_model": "Embedded Scikit-learn Pipeline"
+            "ml_model": "Embedded Scikit-learn Pipeline",
+            "last_error": ApiClient._last_api_error or "Backend did not return a healthy response."
         }
 
     # -------------------------------------------------------------------------
@@ -76,8 +98,8 @@ class ApiClient:
             resp = requests.get(f"{API_BASE_URL}/overview", timeout=TIMEOUT_SEC)
             if resp.status_code == 200:
                 return resp.json()
-        except Exception:
-            pass
+        except Exception as exc:
+            ApiClient._record_api_error("Market overview request", exc)
 
         # Fallback local calculation using the same current/upcoming date rules as the API.
         today = date.today()
@@ -148,9 +170,9 @@ class ApiClient:
             resp = requests.get(f"{API_BASE_URL}/intelligence/demand-curve", timeout=TIMEOUT_SEC)
             if resp.status_code == 200:
                 return resp.json()
-        except Exception:
-            pass
-        return MONTHLY_DEMAND_CURVE
+        except Exception as exc:
+            ApiClient._record_api_error("Demand curve request", exc)
+        return build_event_driven_demand_curve()
 
     # -------------------------------------------------------------------------
     # 2. EVENT INTELLIGENCE
@@ -165,8 +187,8 @@ class ApiClient:
             resp = requests.get(f"{API_BASE_URL}/events", params=params, timeout=TIMEOUT_SEC)
             if resp.status_code == 200:
                 return resp.json()
-        except Exception:
-            pass
+        except Exception as exc:
+            ApiClient._record_api_error("Events request", exc)
 
         today = date.today()
         events = []
@@ -191,11 +213,18 @@ class ApiClient:
     def create_custom_event(event_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new custom event alert."""
         try:
-            resp = requests.post(f"{API_BASE_URL}/events", json=event_data, timeout=TIMEOUT_SEC)
+            resp = requests.post(
+                f"{API_BASE_URL}/events",
+                json=event_data,
+                headers=ApiClient._admin_headers(),
+                timeout=TIMEOUT_SEC
+            )
             if resp.status_code in (200, 201):
                 return resp.json()
-        except Exception:
-            pass
+            ApiClient._record_api_error("Create custom event", f"HTTP {resp.status_code}: {resp.text[:200]}")
+            raise RuntimeError(ApiClient._last_api_error)
+        except requests.RequestException as exc:
+            ApiClient._record_api_error("Create custom event", exc)
         # Fallback append in memory
         event_data["id"] = f"custom-{len(EVENTS_DATA)+1}"
         EVENTS_DATA.append(event_data)
@@ -222,8 +251,8 @@ class ApiClient:
             resp = requests.get(f"{API_BASE_URL}/products", params=params, timeout=TIMEOUT_SEC)
             if resp.status_code == 200:
                 return [ApiClient._normalize_product(product) for product in resp.json()]
-        except Exception:
-            pass
+        except Exception as exc:
+            ApiClient._record_api_error("Products request", exc)
 
         products = []
         for p in WINNING_PRODUCTS_DATA:
@@ -250,25 +279,40 @@ class ApiClient:
     def create_winning_product(product_data: Dict[str, Any]) -> Dict[str, Any]:
         """Add a custom product to catalog."""
         try:
-            resp = requests.post(f"{API_BASE_URL}/products", json=product_data, timeout=TIMEOUT_SEC)
+            resp = requests.post(
+                f"{API_BASE_URL}/products",
+                json=product_data,
+                headers=ApiClient._admin_headers(),
+                timeout=TIMEOUT_SEC
+            )
             if resp.status_code in (200, 201):
                 return resp.json()
-        except Exception:
-            pass
+            ApiClient._record_api_error("Create winning product", f"HTTP {resp.status_code}: {resp.text[:200]}")
+            raise RuntimeError(ApiClient._last_api_error)
+        except requests.RequestException as exc:
+            ApiClient._record_api_error("Create winning product", exc)
         product_data["id"] = f"custom-{len(WINNING_PRODUCTS_DATA)+1}"
         WINNING_PRODUCTS_DATA.append(product_data)
         return product_data
 
     @staticmethod
-    def get_categories() -> List[str]:
-        """Return unique categories across winning products."""
+    def get_categories(event_id: Optional[str] = None) -> List[str]:
+        """Return unique categories, optionally limited to an event."""
         try:
-            resp = requests.get(f"{API_BASE_URL}/products/categories", timeout=TIMEOUT_SEC)
+            params = {"event_id": event_id} if event_id else None
+            resp = requests.get(
+                f"{API_BASE_URL}/products/categories",
+                params=params,
+                timeout=TIMEOUT_SEC
+            )
             if resp.status_code == 200:
                 return resp.json()
-        except Exception:
-            pass
-        cats = sorted(list(set(p["category"] for p in WINNING_PRODUCTS_DATA)))
+        except Exception as exc:
+            ApiClient._record_api_error("Categories request", exc)
+        products = WINNING_PRODUCTS_DATA
+        if event_id and event_id != "All Events":
+            products = [p for p in products if p.get("event_id") == event_id]
+        cats = sorted(list(set(p["category"] for p in products)))
         return ["All Categories"] + cats
 
     # -------------------------------------------------------------------------
@@ -300,8 +344,9 @@ class ApiClient:
             resp = requests.post(f"{API_BASE_URL}/pricing/calculate", json=payload, timeout=TIMEOUT_SEC)
             if resp.status_code == 200:
                 return resp.json()
-        except Exception:
-            pass
+            ApiClient._record_api_error("Pricing calculation", f"HTTP {resp.status_code}: {resp.text[:200]}")
+        except Exception as exc:
+            ApiClient._record_api_error("Pricing calculation", exc)
 
         # Local calculation fallback
         discounted_price = selling_price * (1 - (discount_pct / 100.0))
